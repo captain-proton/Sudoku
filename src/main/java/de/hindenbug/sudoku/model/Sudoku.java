@@ -5,8 +5,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * A <code>Sudoku</code>  is a logic-based, combinatorial number-placement puzzle. The objective is to fill
@@ -99,13 +97,12 @@ public class Sudoku implements Iterable<Field>
      */
     public boolean isSolved()
     {
-        return isValid()
-                && stream().noneMatch(f -> f.getNumber() == 0);
-    }
-
-    public Stream<Field> stream()
-    {
-        return StreamSupport.stream(this.spliterator(), false);
+        int zeros = 0;
+        for (Field f : this)
+            zeros += f.getNumber() == 0
+                     ? 1
+                     : 0;
+        return isValid() && zeros == 0;
     }
 
     /**
@@ -244,14 +241,24 @@ public class Sudoku implements Iterable<Field>
 
     public Set<Field> getRow(int row)
     {
-        return Stream.of(fields[row]).collect(Collectors.toSet());
+        Field[] fields = this.fields[row];
+        Set<Field> result = new HashSet<>(fields.length);
+        for (int column = 0; column < fields.length; column++)
+        {
+            result.add(fields[column]);
+        }
+        return result;
     }
 
     public Set<Field> getColumn(int column)
     {
-        return Stream.of(fields)
-                .map(row -> row[column])
-                .collect(Collectors.toSet());
+        Set<Field> result = new HashSet<>(fields.length);
+        for (int row = 0; row < fields.length; row++)
+        {
+            Field field = fields[row][column];
+            result.add(field);
+        }
+        return result;
     }
 
     /**
@@ -285,48 +292,55 @@ public class Sudoku implements Iterable<Field>
 
     private Set<Integer> getNumbersInRow(int row)
     {
-        return getRow(row)
-                .stream()
-                .map(f -> f.getNumber())
-                .filter(n -> n != 0)
-                .collect(Collectors.toSet());
+        Set<Field> fields = getRow(row);
+        Set<Integer> numbers = new HashSet<>(fields.size());
+        for (Field field : fields)
+            numbers.add(field.getNumber());
+        return numbers;
     }
 
     private Set<Integer> getNumbersInColumn(int column)
     {
-        return getColumn(column)
-                .stream()
-                .map(f -> f.getNumber())
-                .filter(n -> n != 0)
-                .collect(Collectors.toSet());
+        Set<Field> fields = getColumn(column);
+        Set<Integer> numbers = new HashSet<>(fields.size());
+        for (Field field : fields)
+            numbers.add(field.getNumber());
+        return numbers;
     }
 
     private Set<Integer> getNumbersInBlock(int row, int col)
     {
-        return getBlock(row, col)
-                .stream()
-                .map(f -> f.getNumber())
-                .filter(n -> n != 0)
-                .collect(Collectors.toSet());
+        Set<Field> fields = getBlock(row, col);
+        Set<Integer> numbers = new HashSet<>(fields.size());
+        for (Field field : fields)
+            numbers.add(field.getNumber());
+        return numbers;
     }
 
     private boolean isSingleInRow(int number, int row)
     {
-        return VALID_FOUND_COUNT.test(
-                (int) Stream.of(fields[row])
-                        .filter(f -> f.getNumber() == number)
-                        .count());
+        int count = 0;
+        Field[] fields = this.fields[row];
+        for (int i = 0; i < fields.length; i++)
+        {
+            count += fields[i].getNumber() == number
+                     ? 1
+                     : 0;
+        }
+        return VALID_FOUND_COUNT.test(count);
     }
 
     private boolean isSingleInColumn(int number, int col)
     {
-        List<Field> column = Stream.of(fields)
-                .map(f -> f[col])
-                .collect(Collectors.toList());
-        return VALID_FOUND_COUNT.test(
-                (int) column.stream()
-                        .filter(f -> f.getNumber() == number)
-                        .count());
+        int count = 0;
+        for (int row = 0; row < fields.length; row++)
+        {
+            Field field = fields[row][col];
+            count += field.getNumber() == number
+                     ? 1
+                     : 0;
+        }
+        return VALID_FOUND_COUNT.test(count);
     }
 
     private boolean isSingleInBlock(int number, int row, int col)
