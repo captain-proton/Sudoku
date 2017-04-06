@@ -150,7 +150,6 @@ public class Sudoku implements Iterable<Field>
                             .filter(i -> !blockNumbers.contains(i))
                             .toArray();
                     field.addCandidates(candidates);
-                    field.saveCandidates();
                 }
 
             }
@@ -317,7 +316,7 @@ public class Sudoku implements Iterable<Field>
         return numbers;
     }
 
-    private boolean isSingleInRow(int number, int row)
+    public boolean isSingleInRow(int number, int row)
     {
         int count = 0;
         Field[] fields = this.fields[row];
@@ -330,7 +329,7 @@ public class Sudoku implements Iterable<Field>
         return VALID_FOUND_COUNT.test(count);
     }
 
-    private boolean isSingleInColumn(int number, int col)
+    public boolean isSingleInColumn(int number, int col)
     {
         int count = 0;
         for (int row = 0; row < fields.length; row++)
@@ -343,7 +342,7 @@ public class Sudoku implements Iterable<Field>
         return VALID_FOUND_COUNT.test(count);
     }
 
-    private boolean isSingleInBlock(int number, int row, int col)
+    public boolean isSingleInBlock(int number, int row, int col)
     {
         int blockSize = getBlockSize();
 

@@ -63,7 +63,6 @@ public class SingleCandidateStrategy implements CandidateRemovalStrategy
     private void removeCandidate(Field field, int candidate)
     {
         field.removeCandidate(candidate);
-        field.removeSavedCandidate(candidate);
 
         tryFixField(field);
     }

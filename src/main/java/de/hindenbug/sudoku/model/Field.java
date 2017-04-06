@@ -2,7 +2,9 @@ package de.hindenbug.sudoku.model;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A <code>Field</code> is one value of a {@link Sudoku} that may contain a number that this field is bound to.
@@ -11,7 +13,6 @@ import java.util.*;
  * field can be saved and restored.
  *
  * @see Sudoku#buildCandidates()
- * @see #saveCandidates()
  * @see #setNextCandidate()
  * @see #reset()
  */
@@ -22,16 +23,14 @@ public class Field
     private int number;
     private boolean isFix;
 
-    private Set<Integer> tested;
-    private Queue<Integer> candidates;
-    private Set<Integer> savedCandidates;
+    private int idxCandidate;
+    private List<Integer> candidates;
 
     public Field(int row, int column)
     {
         this.row = row;
         this.column = column;
-        this.tested = new HashSet<>();
-        this.candidates = new LinkedList<>();
+        this.candidates = new ArrayList<>();
     }
 
     public int getNumber()
@@ -52,15 +51,9 @@ public class Field
         }
     }
 
-    public void removeCandidate(int candidate)
+    public void removeCandidate(Integer candidate)
     {
         candidates.remove(candidate);
-    }
-
-    public void removeSavedCandidate(int candidate)
-    {
-        if (savedCandidates != null)
-            savedCandidates.remove(candidate);
     }
 
     public int getCandidateCount()
@@ -69,7 +62,7 @@ public class Field
     }
 
     /**
-     * Applies any value of this {@linkplain #candidates} if it is not in {@linkplain #tested} and sets it to this
+     * Applies any value of this {@linkplain #candidates} and sets it to this
      * {@linkplain #number}. If this field has a fixed value nothing is set and <code>true</code> will be returned.
      *
      * @return <code>true</code> if a candidate could be set, <code>false</code> otherwise
@@ -79,26 +72,18 @@ public class Field
         if (isFix())
             return true;
 
-        Integer nextCandidate = candidates.poll();
-        boolean isCandidateAvailable = nextCandidate != null;
-        if (isCandidateAvailable)
+        Integer nextCandidate = idxCandidate < candidates.size()
+                                ? candidates.get(idxCandidate)
+                                : null;
+        idxCandidate++;
+        if (nextCandidate != null)
         {
             this.number = nextCandidate;
-            this.tested.add(nextCandidate);
+            return true;
         }
-        return isCandidateAvailable;
+        return false;
     }
 
-    /**
-     * Saves all current stored {@linkplain #candidates} to {@linkplain #savedCandidates}. The number of this field
-     * and all candidates can be reset.
-     *
-     * @see #reset()
-     */
-    public void saveCandidates()
-    {
-        savedCandidates = new HashSet<>(candidates);
-    }
 
     /**
      * Resets this field to its original number (0) and candidates. Fixed field can not be reset!
@@ -108,9 +93,7 @@ public class Field
         if (!isFix)
         {
             this.number = 0;
-            this.candidates.clear();
-            this.candidates.addAll(savedCandidates);
-            this.tested.clear();
+            this.idxCandidate = 0;
         }
     }
 
@@ -125,15 +108,13 @@ public class Field
         this.isFix = true;
         this.number = number;
         this.candidates.clear();
-        if (savedCandidates != null)
-            this.savedCandidates.clear();
-        if (tested != null)
-            this.tested.clear();
     }
 
     public int getNextCandidate()
     {
-        return candidates.peek();
+        return idxCandidate >= 0 && idxCandidate < candidates.size()
+               ? candidates.get(idxCandidate)
+               : 0;
     }
 
     public int getRow()
@@ -153,7 +134,7 @@ public class Field
      */
     public boolean containsCandidates()
     {
-        return !isFix && !candidates.isEmpty();
+        return !isFix && idxCandidate < candidates.size();
     }
 
     @Override

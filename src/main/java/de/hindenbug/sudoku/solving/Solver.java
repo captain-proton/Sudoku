@@ -56,8 +56,13 @@ public class Solver
             {
                 field.setNextCandidate();
 
-                // if the sudoku is valid
-                if (sudoku.isValid())
+                /*
+                only row, column and block have be checked, as the next candidate
+                affects only these values
+                 */
+                if (sudoku.isSingleInRow(field.getNumber(), field.getRow())
+                        && sudoku.isSingleInColumn(field.getNumber(), field.getColumn())
+                        && sudoku.isSingleInBlock(field.getNumber(), field.getRow(), field.getColumn()))
                 {
                     // get the next possible successor
                     Field successor = sudoku.getSuccessor(field);
