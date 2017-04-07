@@ -36,6 +36,23 @@ public class Sudoku implements Iterable<Field>
         initFields(DEFAULT_SIZE);
     }
 
+    public Sudoku(int[][] sudoku)
+    {
+        fields = new Field[sudoku.length][];
+        for (int row = 0; row < sudoku.length; row++)
+        {
+            int[] columns = sudoku[row];
+            fields[row] = new Field[columns.length];
+            for (int col = 0; col < columns.length; col++)
+            {
+                Field f = new Field(row, col);
+                if (columns[col] != 0)
+                    f.fix(columns[col]);
+                fields[row][col] = f;
+            }
+        }
+    }
+
     private void initFields(int size)
     {
         fields = new Field[size][size];
@@ -270,7 +287,7 @@ public class Sudoku implements Iterable<Field>
      */
     public Set<Field> getBlock(int row, int column)
     {
-        int blockSize = (int) Math.sqrt(fields.length);
+        int blockSize = getBlockSize();
         Set<Field> block = new HashSet<>();
 
         int rowStart = row - row % blockSize;
@@ -289,27 +306,64 @@ public class Sudoku implements Iterable<Field>
         return block;
     }
 
+    public boolean isInRow(int number, int row)
+    {
+        for (int col = 0; col < fields.length; col++)
+        {
+            if (fields[row][col].getNumber() == number)
+                return true;
+        }
+        return false;
+    }
+
+    public boolean isInColumn(int number, int column)
+    {
+        for (int row = 0; row < fields.length; row++)
+        {
+            if (fields[row][column].getNumber() == number)
+                return true;
+        }
+        return false;
+    }
+
+    public boolean isInBlock(int number, int row, int column)
+    {
+        int blockSize = getBlockSize();
+
+        int rowStart = row - row % blockSize;
+        int colStart = column - column % blockSize;
+
+        int rowEnd = rowStart + blockSize;
+        int colEnd = colStart + blockSize;
+
+        for (int i = rowStart; i < rowEnd; i++)
+        {
+            for (int j = colStart; j < colEnd; j++)
+            {
+                if (fields[i][j].getNumber() == number)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     private Set<Integer> getNumbersInRow(int row)
     {
-        Set<Field> fields = getRow(row);
-        Set<Integer> numbers = new HashSet<>(fields.size());
-        for (Field field : fields)
-            numbers.add(field.getNumber());
-        return numbers;
+        return getNumbers(getRow(row));
     }
 
     private Set<Integer> getNumbersInColumn(int column)
     {
-        Set<Field> fields = getColumn(column);
-        Set<Integer> numbers = new HashSet<>(fields.size());
-        for (Field field : fields)
-            numbers.add(field.getNumber());
-        return numbers;
+        return getNumbers(getColumn(column));
     }
 
     private Set<Integer> getNumbersInBlock(int row, int col)
     {
-        Set<Field> fields = getBlock(row, col);
+        return getNumbers(getBlock(row, col));
+    }
+
+    private Set<Integer> getNumbers(Set<Field> fields)
+    {
         Set<Integer> numbers = new HashSet<>(fields.size());
         for (Field field : fields)
             numbers.add(field.getNumber());
@@ -374,6 +428,78 @@ public class Sudoku implements Iterable<Field>
     public int size()
     {
         return fields.length;
+    }
+
+    /**
+     * Returns the top X numbers used inside this sudoku.
+     *
+     * @param top how many numbers should be returns
+     * @return array of size "top" with the most used numbers
+     */
+    public int[] getMostFixedNumbers(int top)
+    {
+        int[] usedTimes = new int[size()];
+        for (int i = 0; i < usedTimes.length; i++)
+            usedTimes[i] = 0;
+
+        // count every fixed number
+        for (int row = 0; row < size(); row++)
+        {
+            for (int col = 0; col < size(); col++)
+            {
+                if (fields[row][col].isFix())
+                {
+                    /*
+                    the index - 1 contains the number
+                    the value is the count of the number
+                     */
+                    usedTimes[fields[row][col].getNumber() - 1] += 1;
+                }
+            }
+        }
+
+        int[] result = new int[top];
+        int idx = 0;
+        /*
+        the maximum count of a numbers used in this sudoku is the size (9 for a 9x9 sudoku).
+        go backwards from max to min and check if a number is used "count" times
+         */
+        for (int count = size(); count > 0 && idx < result.length; count--)
+        {
+            // i + 1 is the possible index of a number
+            for (int i = 0; i < usedTimes.length && idx < result.length; i++)
+            {
+                // if the number at index i is used count times
+                if (usedTimes[i] == count)
+                {
+                    // append the number (= i + 1) to the result
+                    result[idx] = i + 1;
+                    idx++;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns all blocks of this sudoku.
+     *
+     * @return an interable with sets as block, that contain the fields
+     */
+    public Iterable<? extends Set<Field>> getBlocks()
+    {
+        List<Set<Field>> blocks = new ArrayList<>(size());
+        int blockSize = getBlockSize();
+        int size = size();
+
+        for (int row = 0; row < size; row += blockSize)
+        {
+            for (int col = 0; col < size; col += blockSize)
+            {
+                blocks.add(getBlock(row, col));
+            }
+        }
+        return blocks;
     }
 
     /**

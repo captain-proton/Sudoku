@@ -31,8 +31,10 @@ public class Solver
             throw new IllegalArgumentException("sudoku is not valid " + sudoku);
 
         sudoku.buildCandidates();
-        strategies.forEach(s -> s.removeCandidates(sudoku));
-        LOG.debug(System.lineSeparator() + sudoku.toString());
+
+        long time = System.currentTimeMillis();
+
+        runCandidateRemovalStrategies(sudoku);
 
         Field field = sudoku.getField(0, 0);
 
@@ -43,7 +45,6 @@ public class Solver
 
         // for each step on successors and predecessors the count is increased
         long stepCount = 1;
-        long time = System.currentTimeMillis();
 
         // try solving until it can not be solved
         while (!isSolved && isSolvable)
@@ -110,6 +111,21 @@ public class Solver
 
         String fmt = "sudoku solved with %d steps in %s";
         LOG.info(String.format(fmt, stepCount, fmtMillis(System.currentTimeMillis() - time)));
+    }
+
+    private void runCandidateRemovalStrategies(Sudoku sudoku)
+    {
+        int removedCount;
+        do
+        {
+            int removed = 0;
+            for (CandidateRemovalStrategy strategy : strategies)
+            {
+                removed += strategy.removeCandidates(sudoku).size();
+            }
+            removedCount  = removed;
+        } while (removedCount > 0 && !sudoku.isSolved());
+        LOG.debug(System.lineSeparator() + sudoku.toString());
     }
 
     private String fmtMillis(long time)

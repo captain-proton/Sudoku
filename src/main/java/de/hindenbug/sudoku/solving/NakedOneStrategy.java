@@ -5,22 +5,28 @@ import de.hindenbug.sudoku.model.Sudoku;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 /**
- * A <code>SingleCandidateStrategy</code> checks if a candidate of a {@link Field} is the only one left and fixes
+ * A <code>NakedOneStrategy</code> checks if a candidate of a {@link Field} is the only one left and fixes
  * the field to the value. After the fix all fields of the row, column and block are checked if the number is used
  * as a candidate and removes them. If again one candidate is left the process is
  */
-public class SingleCandidateStrategy implements CandidateRemovalStrategy
+public class NakedOneStrategy implements CandidateRemovalStrategy
 {
-    private static final Logger LOG = LoggerFactory.getLogger(SingleCandidateStrategy.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NakedOneStrategy.class);
 
     private Sudoku sudoku;
+    private HashSet<Field> fixedFields;
 
     @Override
-    public void removeCandidates(Sudoku sudoku)
+    public Collection<Field> removeCandidates(Sudoku sudoku)
     {
         this.sudoku = sudoku;
+        this.fixedFields = new HashSet<>();
         this.sudoku.forEach(this::tryFixField);
+        return fixedFields;
     }
 
     /**
@@ -37,6 +43,7 @@ public class SingleCandidateStrategy implements CandidateRemovalStrategy
         {
             int candidate = field.getNextCandidate();
             field.fix(candidate);
+            fixedFields.add(field);
             LOG.debug("field " + field + " fixed");
 
             removeCandidatesFromRow(field.getRow(), candidate);
