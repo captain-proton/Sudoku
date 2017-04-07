@@ -154,6 +154,7 @@ public class Sudoku implements Iterable<Field>
             for (int col = 0; col < fields[row].length; col++)
             {
                 Field field = fields[row][col];
+                field.clearCandidates();
                 if (!field.isFix())
                 {
                     Set<Integer> columnNumbers = columns.get(col);
@@ -255,6 +256,20 @@ public class Sudoku implements Iterable<Field>
         return null;
     }
 
+    public Field getLastEmptyField()
+    {
+        int size = size();
+        for (int row = size - 1; row >= 0; row--)
+        {
+            for (int col = size - 1; col >= 0; col--)
+            {
+                if (!fields[row][col].isFix())
+                    return fields[row][col];
+            }
+        }
+        return null;
+    }
+
     public Set<Field> getRow(int row)
     {
         Field[] fields = this.fields[row];
@@ -347,17 +362,17 @@ public class Sudoku implements Iterable<Field>
         return false;
     }
 
-    private Set<Integer> getNumbersInRow(int row)
+    public Set<Integer> getNumbersInRow(int row)
     {
         return getNumbers(getRow(row));
     }
 
-    private Set<Integer> getNumbersInColumn(int column)
+    public Set<Integer> getNumbersInColumn(int column)
     {
         return getNumbers(getColumn(column));
     }
 
-    private Set<Integer> getNumbersInBlock(int row, int col)
+    public Set<Integer> getNumbersInBlock(int row, int col)
     {
         return getNumbers(getBlock(row, col));
     }
@@ -366,7 +381,11 @@ public class Sudoku implements Iterable<Field>
     {
         Set<Integer> numbers = new HashSet<>(fields.size());
         for (Field field : fields)
-            numbers.add(field.getNumber());
+        {
+            int number = field.getNumber();
+            if (number > 0)
+                numbers.add(number);
+        }
         return numbers;
     }
 
@@ -486,7 +505,7 @@ public class Sudoku implements Iterable<Field>
      *
      * @return an interable with sets as block, that contain the fields
      */
-    public Iterable<? extends Set<Field>> getBlocks()
+    public Collection<? extends Set<Field>> getBlocks()
     {
         List<Set<Field>> blocks = new ArrayList<>(size());
         int blockSize = getBlockSize();

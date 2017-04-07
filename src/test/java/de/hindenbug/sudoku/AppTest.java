@@ -2,6 +2,7 @@ package de.hindenbug.sudoku;
 
 import de.hindenbug.sudoku.model.Sudoku;
 import de.hindenbug.sudoku.solving.ExamineStrategy;
+import de.hindenbug.sudoku.solving.LastManStandingStrategy;
 import de.hindenbug.sudoku.solving.NakedOneStrategy;
 import de.hindenbug.sudoku.solving.Solver;
 import org.slf4j.Logger;
@@ -59,22 +60,6 @@ public class AppTest
     public void buildHardSudoku()
     {
         hardSudoku = new Sudoku(new int[][]{
-                {0, 3, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 1, 9, 5, 0, 0, 0},
-                {0, 0, 8, 0, 0, 0, 0, 6, 0},
-                {8, 0, 0, 0, 6, 0, 0, 0, 0},
-                {4, 0, 0, 8, 0, 0, 0, 0, 1},
-                {0, 0, 0, 0, 2, 0, 0, 0, 0},
-                {0, 6, 0, 0, 0, 0, 2, 8, 0},
-                {0, 0, 0, 4, 1, 9, 0, 0, 5},
-                {0, 0, 0, 0, 0, 0, 0, 7, 0},
-        });
-    }
-
-    @BeforeMethod
-    public void buildEvilSudoku()
-    {
-        evilSudoku = new Sudoku(new int[][]{
                 {6, 0, 0, 2, 0, 0, 0, 0, 0},
                 {0, 5, 0, 0, 6, 0, 1, 0, 0},
                 {0, 9, 0, 0, 0, 4, 0, 0, 0},
@@ -84,6 +69,22 @@ public class AppTest
                 {0, 0, 0, 8, 0, 0, 0, 6, 0},
                 {0, 0, 1, 0, 3, 0, 0, 4, 0},
                 {0, 0, 0, 0, 0, 9, 0, 0, 5},
+        });
+    }
+
+    @BeforeMethod
+    public void buildEvilSudoku()
+    {
+        evilSudoku = new Sudoku(new int[][]{
+                {0, 3, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 1, 9, 5, 0, 0, 0},
+                {0, 0, 8, 0, 0, 0, 0, 6, 0},
+                {8, 0, 0, 0, 6, 0, 0, 0, 0},
+                {4, 0, 0, 8, 0, 0, 0, 0, 1},
+                {0, 0, 0, 0, 2, 0, 0, 0, 0},
+                {0, 6, 0, 0, 0, 0, 2, 8, 0},
+                {0, 0, 0, 4, 1, 9, 0, 0, 5},
+                {0, 0, 0, 0, 0, 0, 0, 7, 0},
         });
     }
 
@@ -188,7 +189,7 @@ public class AppTest
     @Test(dependsOnMethods = {"testSudoku"})
     public void testSimpleSudokuSolverWithStrategies()
     {
-        Solver solver = new Solver(new ExamineStrategy(), new NakedOneStrategy());
+        Solver solver = new Solver(new ExamineStrategy(), new NakedOneStrategy(), new LastManStandingStrategy());
         solver.solve(simpleSudoku);
         LOG.info(System.lineSeparator() + simpleSudoku.toString());
         Assert.assertTrue(simpleSudoku.isSolved());
@@ -197,7 +198,7 @@ public class AppTest
     @Test(dependsOnMethods = {"testSudoku"})
     public void testMediumSudokuSolverrWithStrategies()
     {
-        Solver solver = new Solver(new ExamineStrategy(), new NakedOneStrategy());
+        Solver solver = new Solver(new ExamineStrategy(), new NakedOneStrategy(), new LastManStandingStrategy());
         solver.solve(mediumSudoku);
         LOG.info(System.lineSeparator() + mediumSudoku.toString());
         Assert.assertTrue(mediumSudoku.isSolved());
@@ -206,7 +207,7 @@ public class AppTest
     @Test(dependsOnMethods = {"testSudoku"})
     public void testHardSudokuSolverrWithStrategies()
     {
-        Solver solver = new Solver(new NakedOneStrategy(), new ExamineStrategy());
+        Solver solver = new Solver(new NakedOneStrategy(), new ExamineStrategy(), new LastManStandingStrategy());
         solver.solve(hardSudoku);
         LOG.info(System.lineSeparator() + hardSudoku.toString());
         Assert.assertTrue(hardSudoku.isSolved());
@@ -215,7 +216,7 @@ public class AppTest
     @Test(dependsOnMethods = {"testSudoku"})
     public void testEvilSudokuSolverrWithStrategies()
     {
-        Solver solver = new Solver(new NakedOneStrategy(), new ExamineStrategy());
+        Solver solver = new Solver(new NakedOneStrategy(), new ExamineStrategy(), new LastManStandingStrategy());
         solver.solve(evilSudoku);
         LOG.info(System.lineSeparator() + evilSudoku.toString());
         Assert.assertTrue(evilSudoku.isSolved());

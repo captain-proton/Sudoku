@@ -56,6 +56,11 @@ public class Field
         candidates.remove(candidate);
     }
 
+    public void clearCandidates()
+    {
+        candidates.clear();
+    }
+
     public int getCandidateCount()
     {
         return candidates.size();
@@ -67,10 +72,10 @@ public class Field
      *
      * @return <code>true</code> if a candidate could be set, <code>false</code> otherwise
      */
-    public boolean setNextCandidate()
+    public void setNextCandidate()
     {
         if (isFix())
-            return true;
+            return;
 
         Integer nextCandidate = idxCandidate < candidates.size()
                                 ? candidates.get(idxCandidate)
@@ -79,9 +84,7 @@ public class Field
         if (nextCandidate != null)
         {
             this.number = nextCandidate;
-            return true;
         }
-        return false;
     }
 
 
@@ -135,6 +138,11 @@ public class Field
     public boolean containsCandidates()
     {
         return !isFix && idxCandidate < candidates.size();
+    }
+
+    public boolean containsCandidate(int number)
+    {
+        return !isFix() && candidates.contains(number);
     }
 
     @Override

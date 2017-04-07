@@ -46,16 +46,17 @@ public class ExamineStrategy implements CandidateRemovalStrategy
             // for each block in the sudoku
             for (Set<Field> block : sudoku.getBlocks())
             {
-                Field firstField = block.iterator().next();
+                Field randomField = new ArrayList<>(block).get(0);
 
                 // if the number is not inside the block
-                if (!sudoku.isInBlock(number, firstField.getRow(), firstField.getColumn()))
+                if (!sudoku.isInBlock(number, randomField.getRow(), randomField.getColumn()))
                 {
                     List<Field> fields = new ArrayList<>(block);
 
                     // remove all fields that are not allowed to use the number
-                    fields.removeIf(f -> sudoku.isInRow(number, f.getRow())
-                            || sudoku.isInColumn(number, f.getColumn()));
+                    fields.removeIf(field -> !field.containsCandidate(number)
+                            || sudoku.isInRow(number, field.getRow())
+                            || sudoku.isInColumn(number, field.getColumn()));
 
                     // if one field is left, fix the number to the field
                     if (fields.size() == 1)
