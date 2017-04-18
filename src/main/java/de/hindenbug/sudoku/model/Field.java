@@ -113,7 +113,7 @@ public class Field
         this.candidates.clear();
     }
 
-    public int getNextCandidate()
+    public int getCandidate()
     {
         return idxCandidate >= 0 && idxCandidate < candidates.size()
                ? candidates.get(idxCandidate)

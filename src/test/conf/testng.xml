@@ -2,7 +2,9 @@
 <suite name="Sudoku application Test Suite" annotations="1.5">
     <test name="Unit tests" enabled="true">
         <classes>
-            <class name="de.hindenbug.sudoku.AppTest"/>
+            <class name="de.hindenbug.sudoku.solving.TestSolver"/>
+            <class name="de.hindenbug.sudoku.model.TestSudoku"/>
+            <class name="de.hindenbug.sudoku.model.TestField"/>
         </classes>
     </test>
 </suite>

@@ -1,10 +1,6 @@
-package de.hindenbug.sudoku;
+package de.hindenbug.sudoku.solving;
 
 import de.hindenbug.sudoku.model.Sudoku;
-import de.hindenbug.sudoku.solving.ExamineStrategy;
-import de.hindenbug.sudoku.solving.LastManStandingStrategy;
-import de.hindenbug.sudoku.solving.NakedOneStrategy;
-import de.hindenbug.sudoku.solving.Solver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -14,9 +10,9 @@ import org.testng.annotations.Test;
 /**
  * Unit test for simple App.
  */
-public class AppTest
+public class TestSolver
 {
-    private static final Logger LOG = LoggerFactory.getLogger(AppTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestSolver.class);
 
     private Sudoku simpleSudoku;
     private Sudoku mediumSudoku;

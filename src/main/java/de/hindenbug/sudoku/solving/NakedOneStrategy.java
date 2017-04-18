@@ -41,7 +41,7 @@ public class NakedOneStrategy implements CandidateRemovalStrategy
          */
         if (!field.isFix() && field.getCandidateCount() == 1)
         {
-            int candidate = field.getNextCandidate();
+            int candidate = field.getCandidate();
             field.fix(candidate);
             fixedFields.add(field);
             LOG.debug("field " + field + " fixed");
